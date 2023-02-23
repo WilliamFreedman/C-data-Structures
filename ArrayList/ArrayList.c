@@ -37,7 +37,25 @@ void* add(array_list *list, void* data, int idx)
 	return data;
 }
 
-void reallocate(array_list* list)
+void* remove(array_list *list, int idx, void (*free_data)(void *))
+{
+	void** ptr = list->elements + idx;
+	void* toReturn = *ptr;
+	if (idx == list->num_elements -1)
+	{
+		free(*ptr);
+		return toReturn;
+	}
+	
+	*ptr = NULL;
+	for (int i=idx+1;i<list->num_elements - 1;i++)
+	{
+		*(ptr-1) = *ptr++;
+	}
+	return toReturn;
+}
+
+void** reallocate(array_list* list)
 {
 	size_t new_size = (list->allocated_size)*2 + 1;
 	void** new_elements = (void**)malloc(new_size*sizeof(void**));
@@ -52,6 +70,33 @@ void reallocate(array_list* list)
 	free(old_holder);
 	list->elements = new_holder;
 	list->allocated_size = new_size;
+	return list->elements;
 }
 
+void* get(array_list *list, int idx)
+{
+	return *(list->elements + idx);
+}
 
+void free_list(array_list *list, void (*free_data)(void *))
+{
+	for(int i=0;i<list->num_elements;i++)
+	{
+		free_data(list->elements + i);
+	}
+	free(list);
+}
+
+void print_list(array_list* list, void (*print_function)(void*))
+{
+	printf("[");
+	for(int i=0;i<list->num_elements;i++)
+	{
+		print_function(list->elements + i);
+		if(i != list->num_elements - 1)
+		{
+			printf(", ");
+		}
+	}
+	printf("]");
+}
