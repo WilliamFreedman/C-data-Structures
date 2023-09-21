@@ -1,41 +1,33 @@
-#ifndef _BST_H_
-#define _BST_H_
-
+#include <stdlib.h>
 #include "node.h"
 
-#include <stdbool.h>
-#include <stdlib.h>
-
 typedef struct BST {
-	node* root; //pointer to the tree root
+    struct node* root;
+    int num_nodes;
+    int (*key_cmp)(void*,void*);
 } BST;
 
-/**
- * Creates a BST
-*/
-BST* create_BST();
+BST* create_BST(int (*key_comp)(void*,void*));
 
-/**
- * Adds an element to the tree
- */
+void free_BST(BST* tree);
 
-void* BST_add(node *root, void* key, void* val, int (*cmp)( void*,  void*));
+int isEmpty(BST* tree);
 
-/**
- * Prints each value in the tree
- */
-void print_tree(BST *tree, void (*print_function)(void*));
+int depth(BST* tree);
 
-/**
- * Frees the tree
- */
-void free_tree(node *root, void (*free_key)(void *),void (*free_value)(void *));
+void* find(BST* tree, void* key_val);
 
-/**
- * Searches the tree and returns the value associated with
- */
-void* BST_get(node* root, void* key,int (*cmp)( void*,  void*));
+void* add(BST* tree, void* key_val, void* val);
 
+void* tree_remove(BST* tree, void* key_val);
 
+int contains(BST* tree, void* key_val);
 
-#endif
+void level_order(BST* tree, void (*toRun)(node*));
+
+void inorder(BST* tree, void (*toRun)(node*));
+
+void preorder(BST* tree, void (*toRun)(node*));
+
+void postorder(BST* tree, void (*toRun)(node*));
+
