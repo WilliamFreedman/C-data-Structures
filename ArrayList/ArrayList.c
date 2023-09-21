@@ -1,102 +1,154 @@
+#include "ArrayList.h"
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "ArrayList.h"
+#include <string.h>
+#include <errno.h>
 
 array_list* create_array_list()
 {
-	array_list* list = malloc(sizeof(array_list));
-	list->elements = (void**)malloc(10);
-	//*(char*)(list->elements + 10) = NULL;
+	array_list* list = (array_list*)malloc(sizeof(array_list));
+
+	if (list == NULL)
+	{
+		return NULL;
+	}
+
+	list->elements = malloc(10*sizeof(void*));
+
+	if (list->elements == NULL)
+	{
+		return NULL;
+	}
+
 	list->num_elements = 0;
+
 	list->allocated_size = 10;
+
 	return list;
 }
 
-void blank (void* a){}
-
-void* add(array_list *list, void* data, int idx)
+int reallocate(array_list* list)
 {
-	if (idx > list->num_elements)
+	int sz = (list->allocated_size*2)+1;
+	void** new = (void**)malloc(sz);
+
+	for (int i=0;i<list->num_elements;i++)
 	{
-		fprintf(stderr, "Index out of bounds error: Atempt to add to position %d with array size %i",idx,list->num_elements);
-		free_list(list,blank);
-		exit(1);
+		*(new+i) = *(list->elements + i);
 	}
-	
-	if (list->num_elements + 1 >= list->allocated_size)
+
+	free(list->elements);
+
+	list->elements = new;
+
+	return 1;
+}
+
+void append(array_list* list, void* to_add)
+{
+	if (list->num_elements == list->allocated_size)
 	{
 		reallocate(list);
 	}
 
-	void** last = list->elements + list->num_elements - 1;
-	for (int i = list->num_elements; i>idx;i++)
-	{
-		*(last + 1) = *last--;
-	}
-	*(list->elements + idx) = data;
-	return data;
+	*((list->elements) + list->num_elements) = to_add;
+	list->num_elements++;
 }
 
-void* remove(array_list *list, int idx, void (*free_data)(void *))
+int set(array_list* list, void* to_add, int idx)
 {
-	void** ptr = list->elements + idx;
-	void* toReturn = *ptr;
-	if (idx == list->num_elements -1)
+	if (idx >= list->num_elements || idx<0) //indexOutOfBounds exception
 	{
-		free(*ptr);
-		return toReturn;
+		return 0;
 	}
-	
-	*ptr = NULL;
-	for (int i=idx+1;i<list->num_elements - 1;i++)
-	{
-		*(ptr-1) = *ptr++;
-	}
-	return toReturn;
+
+	*(list->elements + idx) = to_add;
+
+	return 1;
 }
 
-void** reallocate(array_list* list)
-{
-	size_t new_size = (list->allocated_size)*2 + 1;
-	void** new_elements = (void**)malloc(new_size*sizeof(void**));
-	void** new_holder = new_elements;
-	void** old_holder = list->elements;
-	for (int i=0;i<list->num_elements;i++)
-	{
-		*new_elements = *(list->elements);
-		new_elements++;
-		list->elements++;
-	}
-	free(old_holder);
-	list->elements = new_holder;
-	list->allocated_size = new_size;
-	return list->elements;
-}
-
-void* get(array_list *list, int idx)
+void* get(array_list* list, int idx)
 {
 	return *(list->elements + idx);
 }
 
-void free_list(array_list *list, void (*free_data)(void *))
+//idx is the index you're adding to
+static void shift_right(array_list* list, int idx)
+{
+	int i = list->num_elements-1;
+
+	while (i>=idx)
+	{
+		*(list->elements + i + 1) = *(list->elements + i);
+		i--;
+	}
+}
+
+int add_at(array_list* list, void* to_add, int idx)
+{
+	if (list->num_elements == list->allocated_size)
+	{
+		reallocate(list);
+	}
+
+	if (list->elements == NULL)
+	{
+		return 0;
+	}
+
+	list->num_elements++;
+
+	shift_right(list,idx);
+
+	set(list,to_add,idx);
+
+	return 1;
+}
+//idx is the index you're adding to
+static void shift_left(array_list* list, int idx)
+{
+	int i = idx;
+
+	while (i<list->num_elements)
+	{
+		*(list->elements + i) = *(list->elements + i+1);
+		i++;
+	}
+}
+int list_remove(array_list* list, int idx)
+{
+
+	if (idx<0)
+	{
+		idx = list->num_elements + idx;
+	}
+
+	if (idx >= list->num_elements || idx<0) //indexOutOfBounds exception
+	{
+		return 0;
+	}
+
+	shift_left(list,idx);
+
+	list->num_elements--;
+	return 1;
+}
+
+void free_list(array_list* list, void (*free_key)(void *))
 {
 	for(int i=0;i<list->num_elements;i++)
 	{
-		free_data(list->elements + i);
+		free(*(list->elements + i));
 	}
+	free(list->elements);
 	free(list);
 }
 
-void print_list(array_list* list, void (*print_function)(void*))
+void run_on_all(array_list* list, void (*to_run)(void *))
 {
-	printf("[");
 	for(int i=0;i<list->num_elements;i++)
 	{
-		print_function(list->elements + i);
-		if(i != list->num_elements - 1)
-		{
-			printf(", ");
-		}
+		to_run(*(list->elements + i));
 	}
-	printf("]");
 }
