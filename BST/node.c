@@ -1,10 +1,3 @@
-/*******************************************************************************
- * Name        : node.c
- * Author      : Brian S. Borowski
- * Editor      : William Freedman
- * Date        : February 3, 2023
- * Description : Practice with pointers, function pointers, and the linked list.
- ******************************************************************************/
 #include <stdlib.h>
 #include "node.h"
 
@@ -23,4 +16,9 @@ void free_node(node *n, void (*free_key)(void *),void (*free_value)(void *)) {
     free_key(n->key);
     free_value(n->value);
     free(n);
+}
+
+void int_printer(node*n)
+{
+    printf(" {%d,%d} ",*(int*)n->key,*(int*)n->value);
 }

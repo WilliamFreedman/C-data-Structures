@@ -1,14 +1,9 @@
-/*******************************************************************************
- * Name        : node.c
- * Author      : Brian S. Borowski
- * Editor      : William Freedman
- * Date        : February 3, 2023
- * Description : Practice with pointers, function pointers, and the linked list.
- ******************************************************************************/
+
 #ifndef _NODE_H_
 #define _NODE_H_
 
 #include <stdlib.h>
+#include <stdio.h>
 
 typedef struct node {
     void* key;
@@ -33,5 +28,7 @@ node* create_node(void *key, void *value);
  * the appropriate free function on it.
  */
 void free_node(node *n, void (*free_key)(void *),void (*free_value)(void *));
+
+void int_printer(node*n);
 
 #endif
