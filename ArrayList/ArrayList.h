@@ -1,51 +1,44 @@
-#ifndef _LIST_H_
-#define _LIST_H_
+#ifndef _ARRAYLIST_H_
+#define _ARRAYLIST_H_
 
-#include <stdbool.h>
 #include <stdlib.h>
+
 
 typedef struct array_list {
 	void** elements; //pointer to the elements stored by the array list
-	size_t num_elements; //number of elements actually stored
-	size_t allocated_size; //max number of elements that can be stored without reallocating
+	int num_elements; //number of elements actually stored
+	int allocated_size; //max number of elements that can be stored without reallocating
 } array_list;
 
 /**
  * Creates an array list
- * starts by allocating enough memory for 10 of the specified element
+ * starts by allocating enough memory for 10 null pointers
+ * returns NULL if malloc failed
 */
 array_list* create_array_list();
 
 /**
- * Changes the internal memory allocated for the elements
- * To be called when adding an element to a full list
+ * Adds an element to the end of the ArrayList
  */ 
-void** reallocate(array_list* list);
+void append(array_list* list, void* to_add);
 
 /**
- * Adds an element to the selected index
- */
-
-void* A_L_add(array_list *list, void* data, int idx);
-
-/**
- * Prints each value in the list
- */
-void print_list(array_list *list, void (*print_function)(void*));
-
-/**
- * Frees the list
- */
-void free_list(array_list *list, void (*free_data)(void *));
-
-/**
- * Returns the element from a given index
+ * sets the value of list[idx] to to_add. Returns 1 if this was successful, 0 if it failed.
  */ 
-void* A_L_get(array_list *list, int idx);
+int set(array_list* list, void* to_add, int idx);
 
 /**
- * Removes an element from a given index in the list and frees that element
+ * Returns a pointer to the start of the object at idx
+ * This should be casted and dereferneced immediatly, if array_list needs to reallocate its memory, the pointer will be useless
  */ 
-void* A_L_remove(array_list *list, int idx, void (*free_data)(void *));
+void* get(array_list* list, int idx);
+
+int add_at(array_list* list, void* to_add, int idx);
+
+int list_remove(array_list* list, int idx);
+
+void run_on_all(array_list* list, void (*to_run)(void *));
+
+void free_list(array_list* list, void (*free_key)(void *));
 
 #endif
