@@ -3,7 +3,6 @@
 
 #include <stdlib.h>
 
-
 typedef struct array_list {
 	void** elements; //pointer to the elements stored by the array list
 	int num_elements; //number of elements actually stored
