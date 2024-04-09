@@ -135,13 +135,13 @@ int list_remove(array_list* list, int idx)
 	return 1;
 }
 
-void free_list(array_list* list, void (*free_key)(void *))
+void free_list(array_list* list, void (*free_elem)(void *))
 {
 	for(int i=0;i<list->num_elements;i++)
 	{
-		free(*(list->elements + i));
+		free_elem(*(list->elements + i));
 	}
-	free(list->elements);
+	free(*(list->elements));
 	free(list);
 }
 
@@ -151,4 +151,13 @@ void run_on_all(array_list* list, void (*to_run)(void *))
 	{
 		to_run(*(list->elements + i));
 	}
+}
+
+void print_AL(array_list* list)
+{
+    for(int i = 0; i < list->num_elements; i++)
+    {
+        printf("%d ", *((int*)(list->elements[i])));
+    }
+    printf("\n");
 }

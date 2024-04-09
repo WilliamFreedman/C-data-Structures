@@ -38,6 +38,8 @@ int list_remove(array_list* list, int idx);
 
 void run_on_all(array_list* list, void (*to_run)(void *));
 
-void free_list(array_list* list, void (*free_key)(void *));
+void free_list(array_list* list, void (*free_elem)(void *));
+
+void print_AL(array_list* list);
 
 #endif
